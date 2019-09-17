@@ -1,8 +1,9 @@
 #lang racket
-;;;[5 Points] Write a Scheme function (interleave L1 L2) that
-;;; accepts lists L1 and L2. The function produces a list such
-;;; that the elements are interleaved elements of L1 and L2,
-;;; beginning with L1.
+#|[5 Points] Write a Scheme function (interleave L1 L2) that
+accepts lists L1 and L2. The function produces a list such
+that the elements are interleaved elements of L1 and L2,
+beginning with L1.
+|#
 (define (interleave L1 L2)
   ( cond
      ( ( and (null? L1) (null? L2) ) '() );;;no values in either list
@@ -11,6 +12,7 @@
      ( else ( cons (car L1) (cons (car L2) (interleave (cdr L1) (cdr L2) )  ) ) )
   )
 )
+#|
 (display "interleave Test 1\n")
 (interleave '(1 2 3)'(4 5 6))
 (interleave '(1 2 3) '(4))
@@ -21,28 +23,68 @@
 (interleave '(4) '(1 2 3))
 (interleave '(1 2)'()) 
 (interleave '((e f) 5 9) '(a (b c) d))
+|#
 
 
-
-;;;[5 Points] Write a function named (key-store L1 KEY) that
-;;; accepts a list of two-tuples L1 and a value KEY. This
-;;; function returns the second value of the first tuple that
-;;; begins with KEY. If L1 doesn't contain the KEY, return
-;;; the emtpy list.
-(define (key-store L1 KEY) (car L1))
+#|[5 Points] Write a function named (key-store L1 KEY) that
+accepts a list of two-tuples L1 and a value KEY. This
+function returns the second value of the first tuple that
+begins with KEY. If L1 doesn't contain the KEY, return
+the emtpy list.
+|#
+(define (key-store L1 KEY)
+  ( cond
+     ( (null? L1) '() );;;no match
+     ( (equal? (car (car L1) ) KEY) (car (cdr (car L1))) );;;match
+     (  else (key-store (cdr L1) KEY ) ) ;;;search next tuple
+  )
+)
+#|
+(display "key-store Test 1\n")
+(key-store '((a 2) (b c) (c (3 4))) 'c)
+(key-store '((a 2) (b c) (c (3 4))) 'b)
+(key-store '((a 2) (b c) (c (3 4))) 'z)
+(key-store '((() a)) '())
+|#
 
 ;;;[5 Points] Write a function named (list-replace ALIST SYM
 ;;; VAL) that accepts a list of elements and returns that
 ;;; list where all SYM's (a single symbol) have been replaced
 ;;; by the VAL (some scheme value). The replacement must
 ;;; occur even within nested lists.
-;;;(define (list-replace ALIST SYM VAL) )
+(define (list-replace ALIST SYM VAL) 
+  ( cond
+     ( (null? ALIST) '() )
+     ( (equal? SYM (car ALIST) ) ( cons VAL (list-replace (cdr ALIST) SYM VAL) ) );;check and replace
+     ( (symbol? (car ALIST) ) ( cons (car ALIST) (list-replace (cdr ALIST) SYM VAL) ) );;;keep val and run through independently
+     (  else ( cons (list-replace (car ALIST) SYM VAL) (list-replace (cdr ALIST) SYM VAL) ) )
+  )
+)
+#|
+(display "list-replace Test 1\n")
+(list-replace '(a b c) 'a 3) ;;;---> (3 b c)
+(list-replace '(a (a b c) c) 'a 3) ;;;---> (3 (3 b c) c)
+(list-replace '() 'a 3) ;;;---> ()
+(list-replace '(a (a (a))) 'a '(3)) ;;;--> ((3) ((3) ((3))))
+|#
 
 ;;; [5 Points] Write a function named (first-n L1 N) that
 ;;; returns the first N elements of L1. If N is negative,
 ;;; return the empty list. If N exceeds the length of L1
 ;;; return all elements of L1.
-;;;(define ( first-n L1 N )  )
+(define ( first-n L1 N )
+  (cond
+    ( (or (< N 1) (null? L1) ) '() )
+    (  else (cons (car L1)( first-n (cdr L1) (- N 1) ) ) )
+  )
+)
+#|
+(display "first-n Test 1\n")
+(first-n '(a b c d e f) -3) ;;;---> ()
+(first-n '(a b c d e f) 3) ;;;---> (a b c)
+(first-n '(a b c d e f) 33) ;;;---> (a b c d e f)
+(first-n '() 0) ;;;---> ()
+|#
 
 ;;;[5 Points] Write a function named (forget-n L1 N) that
 ;;; returns the elements of L1 except for the first N. If
