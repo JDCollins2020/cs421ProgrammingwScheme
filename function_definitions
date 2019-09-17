@@ -5,9 +5,9 @@
 ;;; beginning with L1.
 (define (interleave L1 L2)
   ( cond
-     ( ( and (null? L1) (null? L2) ) '() )
-     ( (null? L1 )  (cons (car L2) (cdr L2) ) )
-     ( (null? L2 )  (cons (car L1) (cdr L1) ) )
+     ( ( and (null? L1) (null? L2) ) '() );;;no values in either list
+     ( (null? L1 )  (cons (car L2) (cdr L2) ) );;;L1 out of values
+     ( (null? L2 )  (cons (car L1) (cdr L1) ) );;;L2 out of values
      ( else ( cons (car L1) (cons (car L2) (interleave (cdr L1) (cdr L2) )  ) ) )
   )
 )
