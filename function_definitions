@@ -1,2 +1,110 @@
 #lang racket
-(+ 3 4)
+;;;[5 Points] Write a Scheme function (interleave L1 L2) that
+;;; accepts lists L1 and L2. The function produces a list such
+;;; that the elements are interleaved elements of L1 and L2,
+;;; beginning with L1.
+(define (interleave L1 L2)
+  ( cond
+     ( ( and (null? L1) (null? L2) ) '() )
+     ( (null? L1 )  (cons (car L2) (cdr L2) ) )
+     ( (null? L2 )  (cons (car L1) (cdr L1) ) )
+     ( else ( cons (car L1) (cons (car L2) (interleave (cdr L1) (cdr L2) )  ) ) )
+  )
+)
+(display "interleave Test 1\n")
+(interleave '(1 2 3)'(4 5 6))
+(interleave '(1 2 3) '(4))
+(interleave '() '(1 2)) 
+(interleave '(a (b c) d) '((e f) 5 9))
+(display "interleave Test 2\n")
+(interleave '(4 5 6) '(1 2 3))
+(interleave '(4) '(1 2 3))
+(interleave '(1 2)'()) 
+(interleave '((e f) 5 9) '(a (b c) d))
+
+
+
+;;;[5 Points] Write a function named (key-store L1 KEY) that
+;;; accepts a list of two-tuples L1 and a value KEY. This
+;;; function returns the second value of the first tuple that
+;;; begins with KEY. If L1 doesn't contain the KEY, return
+;;; the emtpy list.
+(define (key-store L1 KEY) (car L1))
+
+;;;[5 Points] Write a function named (list-replace ALIST SYM
+;;; VAL) that accepts a list of elements and returns that
+;;; list where all SYM's (a single symbol) have been replaced
+;;; by the VAL (some scheme value). The replacement must
+;;; occur even within nested lists.
+;;;(define (list-replace ALIST SYM VAL) )
+
+;;; [5 Points] Write a function named (first-n L1 N) that
+;;; returns the first N elements of L1. If N is negative,
+;;; return the empty list. If N exceeds the length of L1
+;;; return all elements of L1.
+;;;(define ( first-n L1 N )  )
+
+;;;[5 Points] Write a function named (forget-n L1 N) that
+;;; returns the elements of L1 except for the first N. If
+;;; N is negative, return all elements. If N exceeds the
+;;; length of L1 return the empty list.
+;;;(define (forget-n L1 N ) )
+
+;;;[10 Points] Write a function (running-sum L) that takes
+;;; a list of numbers L and generates a list of the
+;;; runnining sums.
+;;;(define (running-sum L) )
+
+;;;Write a function (counts XS) that takes a list of items
+;;; XS and generates a counting of the elements in XS.
+;;; The returned object is a list of lists. Each element
+;;; of the returned object is a list of length two
+;;; containing an element X of XS and an integer denoting
+;;; the number of occurrences of X in XS. The order of the
+;;; elements in the computed list is not specified. [10 pts]
+;;;(define (count XS))
+
+;;;[5 Points] Write a function (indices L1 X) that takes a
+;;; list of elements L1 and an element X. The function
+;;; returns a list of the indices in L1 that contain X.
+;;; See the following examples for clarificaton.
+;;;(define (indices L1 X))
+
+;;;[5 Points] Write a function (join-together L1 L2) that
+;;; takes a sorted list (ascending) of integers L1 and
+;;; a sorted list of elements L2 and returns a sorted
+;;; list containing all elements of both L1 and L2.
+;;; See the following examples for clarificaton.
+;;;(define (join-together L1 L2 ))
+
+;;;[10 Points] Write a function (merge-sorter L1) that
+;;; takes list-of-integers L1 and returns all elements
+;;; of L1 in sorted order. You must use a merge-sort
+;;; technique that, in the recursive case, a) splits
+;;; L1 into two approximately-equal-length lists, b)
+;;; sorts those lists, and then c) merges the lists
+;;; to obtain the result.
+;;;(define (merge-sorter L1))
+
+;;;[10 Points] Consider two techniques for representing
+;;; a graph as Scheme lists. We can represent a
+;;; directed graph as a list of edges. We call this
+;;; representation an el-graph (i.e. edge-list graph).
+;;; An edge is itself a list of length two such that
+;;; the first element is a symbol denoting the source
+;;; of the edge and the second element is a symbol
+;;; denoting the target of the edge. Note that an
+;;; edge is a list (not just a pair). For example,
+;;; the following is a graph: '((x y) (y z) (x z)).
+;;; We can also represent a graph similar to an
+;;; adjacency matrix. We call this representation an
+;;; x-graph (i.e. matrix-graph). In this case, a graph
+;;; is a list of adjacencies where an adjacency is a
+;;; list of length two such that the first element is a
+;;; node (a symbol) and the second element is a list of
+;;; the targets of that node. For example, the
+;;; following is a graph: '((x (y z)) (y (z)) (z ())).
+;;; Write function (el-graph->x-graph g), that accepts an el-graph g and returns an x-graph of g.
+;;; Write function (x-graph->el-graph g), that accepts an x-graph g and returns an el-graph of g
+;;;(define (el-graph->x-graph g))
+;;;(define (x-graph->el-graph g))
