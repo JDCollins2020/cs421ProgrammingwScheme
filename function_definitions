@@ -74,7 +74,7 @@ the emtpy list.
 ;;; return all elements of L1.
 (define ( first-n L1 N )
   (cond
-    ( (or (< N 1) (null? L1) ) '() )
+    ( (or (< N 1) (null? L1) ) '() ) ;;;list is empty or N = 0
     (  else (cons (car L1)( first-n (cdr L1) (- N 1) ) ) )
   )
 )
@@ -90,8 +90,20 @@ the emtpy list.
 ;;; returns the elements of L1 except for the first N. If
 ;;; N is negative, return all elements. If N exceeds the
 ;;; length of L1 return the empty list.
-;;;(define (forget-n L1 N ) )
-
+(define (forget-n L1 N )
+  (cond
+    ( (<= N 0) L1 ) ;;;N is negative
+    ( (< N 1)  (cdr L1) ) ;;; N = 0 and list is not empty
+    ( (null? L1) '() ) ;;; N exceeds length of L1
+    ( else ( forget-n (cdr L1) (- N 1) ) )
+  )
+)
+(display "forget-n Test 1\n")
+(forget-n '(a b c d e f) -3) ;;;---> (a b c d e f)
+(forget-n '(a b c d e f) 3) ;;;---> (d e f)
+(forget-n '(a b c d e f) 6) ;;;---> ()
+(forget-n '(a b c d e f) 33) ;;;---> ()
+(forget-n '() 0) ;;;---> ()
 ;;;[10 Points] Write a function (running-sum L) that takes
 ;;; a list of numbers L and generates a list of the
 ;;; runnining sums.
