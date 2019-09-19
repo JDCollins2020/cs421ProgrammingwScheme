@@ -204,17 +204,42 @@ the emtpy list.
          )
   )
 )
+#|
 (indices '(a b c a e f a) 'a) ;;;---> (0 3 6)
 (indices '(a (a b) b c d) 'a) ;;;---> (0)
 (indices '(a b c a e f a) 'z) ;;;---> ()
 (indices '(() (a b) a b ()) '()) ;;;---> (0 4)
+|#
 
 ;;;[5 Points] Write a function (join-together L1 L2) that
 ;;; takes a sorted list (ascending) of integers L1 and
 ;;; a sorted list of elements L2 and returns a sorted
 ;;; list containing all elements of both L1 and L2.
 ;;; See the following examples for clarificaton.
-;;;(define (join-together L1 L2 ))
+(define (join-together L1 L2 )
+  ( cond
+     ( ( and (null? L1) (null? L2) ) '() );;;no values in either list
+     ( ( null? L1 )  (cons (car L2) (cdr L2) ) );;;L1 out of values
+     ( ( null? L2 )  (cons (car L1) (cdr L1) ) );;;L2 out of values
+     ( ( < ( car L1 ) ( car L2 ) ) ( cons
+                                      ( car L1 )
+                                      ( join-together ( cdr L1 ) L2 )
+                                   )
+     )
+
+     ( ( > ( car L1 ) ( car L2 ) ) ( cons
+                                      ( car L2 )
+                                      ( join-together L1 ( cdr L2 ) )
+                                   )
+     )
+  )
+)
+
+(join-together '(3 12 18) '(-12 15 22)) ;;;---> (-12 3 12 15 18 22)
+(join-together '() '(-12 15 22)) ;;;---> (-12 15 22)
+(join-together '(3 12 18) '()) ;;;---> (3 12 18)
+(join-together '(3 4 5) '(100 200 300 400 500 600)) ;;;---> (3 4 5 100 200 300 400 500 600)
+(join-together '(100) '(1 2 3 4 500 600)) ;;;---> (1 2 3 4 100 500 600)
 
 ;;;[10 Points] Write a function (merge-sorter L1) that
 ;;; takes list-of-integers L1 and returns all elements
