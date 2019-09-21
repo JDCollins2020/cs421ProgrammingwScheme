@@ -165,7 +165,7 @@ runnining sums.
     ( else ( count-sym ( cdr L ) SYM ) )
   )
 )
-
+#|main procedure|#
 (define (counts XS)
   (cond
     ( ( null? XS ) '() )
@@ -182,9 +182,8 @@ runnining sums.
 
 (display "filter Test 1\n")
 (filter equal? '(b 1 3 b 0 c d b c b) 'b) ;;;--->'(1 3 0 c d c)
-(filter '(b b b b) 'b) ;;;--->'()
-(filter '() 'b) ;;;---> '()
-
+(filter equal?' (b b b b) 'b) ;;;--->'()
+(filter < '() 'b) ;;;---> '()
 
 (display "counts Test 1\n")
 (counts '(a b c c b b)) ;;;---> '((a 1) (b 3) (c 2))
@@ -192,33 +191,38 @@ runnining sums.
 (counts '(1 3 c c #f)) ;;;---> '((1 1) (3 1) (c 2) (#f 1))
 (counts '(b b a b))
 (counts '(a b c d a 1 2 3 a))
-|#
 
-;;;[5 Points] Write a function (indices L1 X) that takes a
-;;; list of elements L1 and an element X. The function
-;;; returns a list of the indices in L1 that contain X.
-;;; See the following examples for clarificaton.
-(define (indices L1 X)
-  ( map ( lambda ( x ) ( + 1 x ) )
-        (cond
-          ( ( null? L1 ) '() )
-          ( ( equal? X ( car L1 ) ) ( cons -1 ( indices ( cdr L1 ) X ) ) )  
-          ( else   ( indices ( cdr L1 ) X ) )
+#|
+[5 Points] Write a function (indices L1 X) that takes a
+list of elements L1 and an element X. The function
+returns a list of the indices in L1 that contain X.
+See the following examples for clarificaton.
+|#
+( define ( indices L1 X )
+  ( map ( lambda ( x ) ( + 1 x ) ) ;;;increment values in L1 after each recur. call
+        ( cond
+          ( ( null? L1 ) '() ) ;;;empty list
+          ( ( equal? X ( car L1 ) ) ( cons
+                                      -1
+                                      ( indices ( cdr L1 ) X ) ) ) ;;;match, add a -1 to list and check cdr list  
+          ( else ( indices ( cdr L1 ) X ) ) ;;;check next element
          )
   )
 )
-#|
+( display "indices Test 1\n" )
+(indices '(a a a a a a a a a a a a) 'a)
 (indices '(a b c a e f a) 'a) ;;;---> (0 3 6)
 (indices '(a (a b) b c d) 'a) ;;;---> (0)
 (indices '(a b c a e f a) 'z) ;;;---> ()
 (indices '(() (a b) a b ()) '()) ;;;---> (0 4)
-|#
 
-;;;[5 Points] Write a function (join-together L1 L2) that
-;;; takes a sorted list (ascending) of integers L1 and
-;;; a sorted list of elements L2 and returns a sorted
-;;; list containing all elements of both L1 and L2.
-;;; See the following examples for clarificaton.
+#|
+[5 Points] Write a function (join-together L1 L2) that
+takes a sorted list (ascending) of integers L1 and
+a sorted list of elements L2 and returns a sorted
+list containing all elements of both L1 and L2.
+See the following examples for clarificaton.
+|#
 (define (join-together L1 L2 )
   ( cond
      ( ( and (null? L1) (null? L2) ) '() );;;no values in either list
@@ -237,22 +241,31 @@ runnining sums.
      )
   )
 )
-( display "join-together Test 1\n")
+(display "join-together Test 1\n")
 (join-together '(3 12 18) '(-12 15 22)) ;;;---> (-12 3 12 15 18 22)
 (join-together '() '(-12 15 22)) ;;;---> (-12 15 22)
 (join-together '(3 12 18) '()) ;;;---> (3 12 18)
 (join-together '(3 4 5) '(100 200 300 400 500 600)) ;;;---> (3 4 5 100 200 300 400 500 600)
 (join-together '(100) '(1 2 3 4 500 600)) ;;;---> (1 2 3 4 100 500 600)
 
-;;;[10 Points] Write a function (merge-sorter L1) that
-;;; takes list-of-integers L1 and returns all elements
-;;; of L1 in sorted order. You must use a merge-sort
-;;; technique that, in the recursive case, a) splits
-;;; L1 into two approximately-equal-length lists, b)
-;;; sorts those lists, and then c) merges the lists
-;;; to obtain the result.
-;;;(define (merge-sorter L1))
-
+#|
+[10 Points] Write a function (merge-sorter L1) that
+takes list-of-integers L1 and returns all elements
+of L1 in sorted order. You must use a merge-sort
+technique that, in the recursive case, a) splits
+L1 into two approximately-equal-length lists, b)
+sorts those lists, and then c) merges the lists
+to obtain the result.
+|#
+(define (merge-sorter L1) (+ 1 0) )
+( define ( split  L1)
+ ( round  ( / ( length L1) 2 ) )
+)
+( display "split test 1 \n" )
+( split '(0 1 2 3 4 5) )
+( split '(0 1 2 3 4) )
+( split '() ) ;; identical to one value case
+( split '(1) ) ;; identical to '() case
 ;;;[10 Points] Consider two techniques for representing
 ;;; a graph as Scheme lists. We can represent a
 ;;; directed graph as a list of edges. We call this
