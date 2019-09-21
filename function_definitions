@@ -257,15 +257,26 @@ L1 into two approximately-equal-length lists, b)
 sorts those lists, and then c) merges the lists
 to obtain the result.
 |#
-(define (merge-sorter L1) (+ 1 0) )
-( define ( split  L1)
- ( round  ( / ( length L1) 2 ) )
+(define (merge-sorter L1)
+  (cond
+    ( ( null? L1 ) '() )
+    ( (< (length L1) 2 ) L1 )
+    ( else ( join-together ( merge-sorter (split first-n L1) )( merge-sorter (split forget-n L1) ) ) )
+  )
 )
-( display "split test 1 \n" )
-( split '(0 1 2 3 4 5) )
-( split '(0 1 2 3 4) )
-( split '() ) ;; identical to one value case
-( split '(1) ) ;; identical to '() case
+#|splits the list using a procedure f|#
+( define ( split f L1)
+ ( f L1 ( round  ( / ( length L1) 2 ) ) )
+)
+( display "Test merge-sorter\n" )
+(merge-sorter '(-3 -20 100) )
+(merge-sorter '(100 -2))
+(merge-sorter '(-2))
+(merge-sorter '() )
+(merge-sorter '(3 1 5 4 2) ) ;;;---> (1 2 3 4 5)
+(merge-sorter '()) ;;;---> ()
+(merge-sorter '(1)) ;;;---> (1)
+
 ;;;[10 Points] Consider two techniques for representing
 ;;; a graph as Scheme lists. We can represent a
 ;;; directed graph as a list of edges. We call this
