@@ -1,5 +1,5 @@
 #lang racket
-#|
+
 #|
 [5 Points] Write a Scheme function (interleave L1 L2) that
 accepts lists L1 and L2. The function produces a list such
@@ -10,11 +10,10 @@ beginning with L1.
   ( cond
      ( ( and ( null? L1 ) ( null? L2 ) ) '() );;;no values in either list
      ( ( null? L1 )  ( cons ( car L2 ) ( cdr L2 ) ) );;;L1 out of values
-     ( ( null? L2 )  (cons (car L1) (cdr L1) ) );;;L2 out of values
-     ( else ( cons
-              (car L1) (cons
-                        (car L2)
-                        (interleave (cdr L1) (cdr L2) )  ) ) );;;recur on cdr of each list
+     ( ( null? L2 )  ( cons ( car L1 ) ( cdr L1 ) ) );;;L2 out of values
+     ( else ( cons ( car L1 )
+                   ( cons ( car L2 )
+                          ( interleave ( cdr L1 ) ( cdr L2 ) )  ) ) );;;recur on cdr of each list
   )
 )
 
@@ -61,8 +60,8 @@ occur even within nested lists.
   ( cond
      ( ( null? ALIST ) '() ) ;;;empty list
      ( ( equal? SYM ( car ALIST ) ) ( cons VAL ( list-replace ( cdr ALIST ) SYM VAL ) ) );;;check and replace
-     ( ( symbol? ( car ALIST ) ) ( cons ( car ALIST ) ( list-replace (cdr ALIST) SYM VAL) ) );;;keep val and run through independently
-     (  else ( cons ( list-replace ( car ALIST ) SYM VAL ) ( list-replace (cdr ALIST) SYM VAL) ) );;;list within a list case
+     ( ( symbol? ( car ALIST ) ) ( cons ( car ALIST ) ( list-replace ( cdr ALIST ) SYM VAL ) ) );;;keep val and run through independently
+     (  else ( cons ( list-replace ( car ALIST ) SYM VAL ) ( list-replace ( cdr ALIST ) SYM VAL ) ) );;;list within a list case
   )
 )
 (display "list-replace Test 1\n")
@@ -160,12 +159,12 @@ runnining sums.
   )
 )
 #|main procedure|#
-(define (counts XS)
-  (cond
+( define ( counts XS )
+  ( cond
     ( ( null? XS ) '() )
     ( else ( cons
              ( list ( car XS ) ( count-sym XS ( car XS ) ) ) ;;; ( value count )
-             ( counts ( filter (lambda (x) (not(equal? ( car XS ) x))) XS  ) ) ) ) ;;; count filtered list
+             ( counts ( filter ( lambda ( x ) ( not ( equal? ( car XS ) x) ) ) XS ) ) ) ) ;;; count filtered list
   ) 
 )
 
@@ -195,9 +194,8 @@ See the following examples for clarificaton.
   ( map ( lambda ( x ) ( + 1 x ) ) ;;;increment values in L1 after each recur. call
         ( cond
           ( ( null? L1 ) '() ) ;;;empty list
-          ( ( equal? X ( car L1 ) ) ( cons
-                                      -1
-                                      ( indices ( cdr L1 ) X ) ) ) ;;;match, add a -1 to list and check cdr list  
+          ( ( equal? X ( car L1 ) ) ( cons -1
+                                           ( indices ( cdr L1 ) X ) ) ) ;;;match, add a -1 to list and check cdr list  
           ( else ( indices ( cdr L1 ) X ) ) ;;;check next element
          )
   )
@@ -216,20 +214,18 @@ a sorted list of elements L2 and returns a sorted
 list containing all elements of both L1 and L2.
 See the following examples for clarificaton.
 |#
-(define (join-together L1 L2 )
+( define ( join-together L1 L2 )
   ( cond
-     ( ( and (null? L1) (null? L2) ) '() );;;no values in either list
-     ( ( null? L1 )  (cons (car L2) (cdr L2) ) );;;L1 out of values
-     ( ( null? L2 )  (cons (car L1) (cdr L1) ) );;;L2 out of values
-     ( ( < ( car L1 ) ( car L2 ) ) ( cons
-                                      ( car L1 )
-                                      ( join-together ( cdr L1 ) L2 )
+     ( ( and ( null? L1 ) ( null? L2 ) ) '() );;;no values in either list
+     ( ( null? L1 )  ( cons ( car L2 ) ( cdr L2 ) ) );;;L1 out of values
+     ( ( null? L2 )  ( cons ( car L1 ) ( cdr L1 ) ) );;;L2 out of values
+     ( ( < ( car L1 ) ( car L2 ) ) ( cons ( car L1 )
+                                          ( join-together ( cdr L1 ) L2 )
                                    )
      )
 
-     ( ( > ( car L1 ) ( car L2 ) ) ( cons
-                                      ( car L2 )
-                                      ( join-together L1 ( cdr L2 ) )
+     ( ( > ( car L1 ) ( car L2 ) ) ( cons ( car L2 )
+                                          ( join-together L1 ( cdr L2 ) )
                                    )
      )
   )
@@ -250,16 +246,17 @@ L1 into two approximately-equal-length lists, b)
 sorts those lists, and then c) merges the lists
 to obtain the result.
 |#
-(define (merge-sorter L1)
-  (cond
-    ( ( null? L1 ) '() )
-    ( (< (length L1) 2 ) L1 )
-    ( else ( join-together ( merge-sorter (split first-n L1) )( merge-sorter (split forget-n L1) ) ) )
-  )
-)
+
 #|splits the list using a procedure f|#
 ( define ( split f L1)
- ( f L1 ( round  ( / ( length L1) 2 ) ) )
+ ( f L1 ( round  ( / ( length L1 ) 2 ) ) )
+)
+( define ( merge-sorter L1 )
+  (cond
+    ( ( null? L1 ) '() )
+    ( ( < ( length L1 ) 2 ) L1 )
+    ( else ( join-together ( merge-sorter ( split first-n L1 ) ) ( merge-sorter ( split forget-n L1 ) ) ) )
+  )
 )
 ( display "Test merge-sorter\n" )
 (merge-sorter '(-3 -20 100) )
@@ -290,85 +287,48 @@ to obtain the result.
 ;;; following is a graph: '((x (y z)) (y (z)) (z ())).
 ;;; Write function (el-graph->x-graph g), that accepts an el-graph g and returns an x-graph of g.
 ;;; Write function (x-graph->el-graph g), that accepts an x-graph g and returns an el-graph of g
-|#
-( define (edges VERT g)
-   ( cond
-      ( (null? g) '() )
-      ( (equal? (caar g) VERT ) ( cons (cadar g) (edges VERT ( cdr g ) ) ) )
-      ( else (edges VERT ( cdr g ) ) )
-   )
-)
 
-(define (el-graph->x-graph g)
-  (targets (decompose g) g)
-  #|( cond
-     ( (null? g) '() )
-     (  else  ( cons (list (caar g) (edges (caar g) g )) (el-graph->x-graph ( filter (lambda (x) (not(equal? (caar g) (car x)))) g)  ) ) )
-  )|#
-)
 ( define (decompose L1)
    ( cond
-      ( (null?  L1 ) '() )
-      ( else (cons (caar L1 ) (cons (cadar L1) (decompose (cdr L1) ) ) ) )
+      ( ( null?  L1 ) '() )
+      ( else ( cons ( caar L1 ) ( cons ( cadar L1 ) ( decompose ( cdr L1 ) ) ) ) )
    )
 )
 
-( define (targets L1 g)
+( define ( targets L1 g )
    ( cond
-      ( (null? L1) '() )
-      ( else ( cons (list (car L1) (edges (car L1) g ) ) (targets ( filter (lambda (x) (not(equal? (car L1) x))) L1 ) g)  ) )
+      ( ( null? L1 ) '() )
+      ( else ( cons ( list ( car L1 ) ( edges ( car L1 ) g ) )
+                     (targets ( filter ( lambda (x) ( not ( equal? ( car L1 ) x) ) ) L1 ) g) ) )
+   )
+)
+( define ( edges VERT g )
+   ( cond
+      ( ( null? g ) '() )
+      ( ( equal? ( caar g ) VERT ) ( cons ( cadar g ) ( edges VERT ( cdr g ) ) ) )
+      ( else ( edges VERT ( cdr g ) ) )
    )
 )
 
+(define ( el-graph->x-graph g )
+  ( targets ( decompose g ) g )
+)
+( define ( x-graph->el-graph g )
+  ( cond
+     ( ( null? g ) '() )
+     ( else ( append ( map ( lambda ( target ) ( list ( caar g ) target ) ) ( cadar g ) ) ( x-graph->el-graph ( cdr g ) ) ) )
+   )
+)
+
+(display "el-graph->x-graph Test 1\n")
 (el-graph->x-graph '() )
 (el-graph->x-graph '( (x y) ) )
 (el-graph->x-graph '((x y) (y z)) )
 (el-graph->x-graph '((x y) (y z) (x z)) ) ;;;--->( (x(y)) (y()) (y(x)) (x()) (y(z)) (z()) (x(z)) (z()) )
 (el-graph->x-graph '((x y) (x x) (y z) (x z)) ) ;;;---> ((x (y z)) (y (z)) (z ())).
-
-;(map (lambda (edge targ)  (list edge targ))  '(x y) '( y '() )  )
-;(map (lambda (target) (list (caar g) target) )(cadar g) )
-#|
-(define (el-graph->x-graph g)
-  ( cond
-     ( (null? g) '() )
-     ( else (path (caar g) g ) )
-  )
-)
-( define (path VERT g)
-   ( cond
-      ( ( null? VERT ) (el-graph->x-graph g) )
-      ( else (display g)( newline) ( cons ( list VERT (edges VERT g) ) ( path (key-store g VERT) ( filter (lambda (x) (not(equal? VERT (car x)))) g) ) ) )
-   )
-)
-( define (edges VERT g)
-   ( cond
-      ( (null? g) '() )
-      ( (equal? (caar g) VERT ) ( cons (cadar g) (edges VERT ( cdr g ) ) ) )
-      ( else (edges VERT ( cdr g ) ) )
-   )
-)
-
-(display "el-graph->x-graph Test 1\n")
-;;new idea. make list of all vertices. get edges for vertices and remove all occurences from list of vertices
-;;; list == x y y x y z x z, then edge and remove from list and g. replace path with a recur that is similar
-(el-graph->x-graph '((x y) (y x) (y z) (x z)) )
-(el-graph->x-graph '((x y) (y z) (x z)) ) ;;;---> ((x (y z)) (y (z)) (z ())).
-(display "'((x (y z)) (y (z)) (z ()))")
 (el-graph->x-graph '((x y) (y z) (x z)(u v) (v w) (u w)) ) ;;;---> ((x (y z)) (y (z)) (z ()) (u (v w)) (v (w)) (w ())).
-(display "'((x (y z)) (y (z)) (z ()) (u (v w)) (v (w)) (w ()))")
-;(x-graph->el-graph '((x (y z)) (y (z)) (z ()))) ;;;---> ((x y) (y z) (x z)).
-|#
 
-(define (x-graph->el-graph g)
-  ( cond
-     ( ( null? g ) '() )
-     ( else ( append (map (lambda (target) (list (caar g) target) )(cadar g) ) (x-graph->el-graph ( cdr g ) ) ) )
-   )
-)
 
-#|
 (display "x-graph->el-graph Test 1\n")
 (x-graph->el-graph '((x (y z)) (y (z)) (z ()))) ;;;---> ((x y) (y z) (x z)).
 (x-graph->el-graph '((x (x y z)) (y (z w)) (z ()) ( w () ) )) ;;;---> ((x y) (y z) (x z)).
-|#
