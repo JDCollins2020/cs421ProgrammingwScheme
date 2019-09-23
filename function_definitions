@@ -1,5 +1,6 @@
 #lang racket
 #|
+#|
 [5 Points] Write a Scheme function (interleave L1 L2) that
 accepts lists L1 and L2. The function produces a list such
 that the elements are interleaved elements of L1 and L2,
@@ -149,14 +150,7 @@ runnining sums.
 ;;; the number of occurrences of X in XS. The order of the
 ;;; elements in the computed list is not specified. [10 pts]
 
-#|removes all of a given SYM from a list which satisfies prediacate P|#
-(define (filter P L SYM)
-  (cond
-     ( (null? L) '() )
-     ( (P SYM ( car L ) ) ( filter P (cdr L) SYM ) )
-     (  else ( cons ( car L ) ( filter P ( cdr L ) SYM ) ) )
-  )
-)
+
 #|counts the occurences of a given SYM in a list|#
 (define (count-sym L SYM)
   (cond
@@ -171,7 +165,7 @@ runnining sums.
     ( ( null? XS ) '() )
     ( else ( cons
              ( list ( car XS ) ( count-sym XS ( car XS ) ) ) ;;; ( value count )
-             ( counts ( filter equal? XS ( car XS ) ) ) ) ) ;;; count filtered list
+             ( counts ( filter (lambda (x) (not(equal? ( car XS ) x))) XS  ) ) ) ) ;;; count filtered list
   ) 
 )
 
@@ -181,9 +175,8 @@ runnining sums.
 (count-sym '() 'b) ;;;--->0
 
 (display "filter Test 1\n")
-(filter equal? '(b 1 3 b 0 c d b c b) 'b) ;;;--->'(1 3 0 c d c)
-(filter equal?' (b b b b) 'b) ;;;--->'()
-(filter < '() 'b) ;;;---> '()
+( filter number? '(1 2 3 "hello" #t #\a ) )
+( filter (lambda (x) (not(equal? 'y x))) '(1 2 3 y 4 5) )
 
 (display "counts Test 1\n")
 (counts '(a b c c b b)) ;;;---> '((a 1) (b 3) (c 2))
@@ -297,5 +290,85 @@ to obtain the result.
 ;;; following is a graph: '((x (y z)) (y (z)) (z ())).
 ;;; Write function (el-graph->x-graph g), that accepts an el-graph g and returns an x-graph of g.
 ;;; Write function (x-graph->el-graph g), that accepts an x-graph g and returns an el-graph of g
-;;;(define (el-graph->x-graph g))
-;;;(define (x-graph->el-graph g))
+|#
+( define (edges VERT g)
+   ( cond
+      ( (null? g) '() )
+      ( (equal? (caar g) VERT ) ( cons (cadar g) (edges VERT ( cdr g ) ) ) )
+      ( else (edges VERT ( cdr g ) ) )
+   )
+)
+
+(define (el-graph->x-graph g)
+  (targets (decompose g) g)
+  #|( cond
+     ( (null? g) '() )
+     (  else  ( cons (list (caar g) (edges (caar g) g )) (el-graph->x-graph ( filter (lambda (x) (not(equal? (caar g) (car x)))) g)  ) ) )
+  )|#
+)
+( define (decompose L1)
+   ( cond
+      ( (null?  L1 ) '() )
+      ( else (cons (caar L1 ) (cons (cadar L1) (decompose (cdr L1) ) ) ) )
+   )
+)
+
+( define (targets L1 g)
+   ( cond
+      ( (null? L1) '() )
+      ( else ( cons (list (car L1) (edges (car L1) g ) ) (targets ( filter (lambda (x) (not(equal? (car L1) x))) L1 ) g)  ) )
+   )
+)
+
+(el-graph->x-graph '() )
+(el-graph->x-graph '( (x y) ) )
+(el-graph->x-graph '((x y) (y z)) )
+(el-graph->x-graph '((x y) (y z) (x z)) ) ;;;--->( (x(y)) (y()) (y(x)) (x()) (y(z)) (z()) (x(z)) (z()) )
+(el-graph->x-graph '((x y) (x x) (y z) (x z)) ) ;;;---> ((x (y z)) (y (z)) (z ())).
+
+;(map (lambda (edge targ)  (list edge targ))  '(x y) '( y '() )  )
+;(map (lambda (target) (list (caar g) target) )(cadar g) )
+#|
+(define (el-graph->x-graph g)
+  ( cond
+     ( (null? g) '() )
+     ( else (path (caar g) g ) )
+  )
+)
+( define (path VERT g)
+   ( cond
+      ( ( null? VERT ) (el-graph->x-graph g) )
+      ( else (display g)( newline) ( cons ( list VERT (edges VERT g) ) ( path (key-store g VERT) ( filter (lambda (x) (not(equal? VERT (car x)))) g) ) ) )
+   )
+)
+( define (edges VERT g)
+   ( cond
+      ( (null? g) '() )
+      ( (equal? (caar g) VERT ) ( cons (cadar g) (edges VERT ( cdr g ) ) ) )
+      ( else (edges VERT ( cdr g ) ) )
+   )
+)
+
+(display "el-graph->x-graph Test 1\n")
+;;new idea. make list of all vertices. get edges for vertices and remove all occurences from list of vertices
+;;; list == x y y x y z x z, then edge and remove from list and g. replace path with a recur that is similar
+(el-graph->x-graph '((x y) (y x) (y z) (x z)) )
+(el-graph->x-graph '((x y) (y z) (x z)) ) ;;;---> ((x (y z)) (y (z)) (z ())).
+(display "'((x (y z)) (y (z)) (z ()))")
+(el-graph->x-graph '((x y) (y z) (x z)(u v) (v w) (u w)) ) ;;;---> ((x (y z)) (y (z)) (z ()) (u (v w)) (v (w)) (w ())).
+(display "'((x (y z)) (y (z)) (z ()) (u (v w)) (v (w)) (w ()))")
+;(x-graph->el-graph '((x (y z)) (y (z)) (z ()))) ;;;---> ((x y) (y z) (x z)).
+|#
+
+(define (x-graph->el-graph g)
+  ( cond
+     ( ( null? g ) '() )
+     ( else ( append (map (lambda (target) (list (caar g) target) )(cadar g) ) (x-graph->el-graph ( cdr g ) ) ) )
+   )
+)
+
+#|
+(display "x-graph->el-graph Test 1\n")
+(x-graph->el-graph '((x (y z)) (y (z)) (z ()))) ;;;---> ((x y) (y z) (x z)).
+(x-graph->el-graph '((x (x y z)) (y (z w)) (z ()) ( w () ) )) ;;;---> ((x y) (y z) (x z)).
+|#
