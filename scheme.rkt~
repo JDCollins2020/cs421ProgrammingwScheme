@@ -1,0 +1,334 @@
+#lang racket
+
+#|
+[5 Points] Write a Scheme function (interleave L1 L2) that
+accepts lists L1 and L2. The function produces a list such
+that the elements are interleaved elements of L1 and L2,
+beginning with L1.
+|#
+( define ( interleave L1 L2 )
+  ( cond
+     ( ( and ( null? L1 ) ( null? L2 ) ) '() );;;no values in either list
+     ( ( null? L1 )  ( cons ( car L2 ) ( cdr L2 ) ) );;;L1 out of values
+     ( ( null? L2 )  ( cons ( car L1 ) ( cdr L1 ) ) );;;L2 out of values
+     ( else ( cons ( car L1 )
+                   ( cons ( car L2 )
+                          ( interleave ( cdr L1 ) ( cdr L2 ) )  ) ) );;;recur on cdr of each list
+  )
+)
+
+(display "interleave Test 1\n")
+(interleave '(1 2 3)'(4 5 6))
+(interleave '(1 2 3) '(4))
+(interleave '() '(1 2)) 
+(interleave '(a (b c) d) '((e f) 5 9))
+(display "interleave Test 2\n")
+(interleave '(4 5 6) '(1 2 3))
+(interleave '(4) '(1 2 3))
+(interleave '(1 2)'()) 
+(interleave '((e f) 5 9) '(a (b c) d))
+
+#|
+[5 Points] Write a function named (key-store L1 KEY) that
+accepts a list of two-tuples L1 and a value KEY. This
+function returns the second value of the first tuple that
+begins with KEY. If L1 doesn't contain the KEY, return
+the emtpy list.
+|#
+( define ( key-store L1 KEY )
+  ( cond
+     ( ( null? L1 ) '() );;;no match
+     ( ( equal? ( car ( car L1 ) ) KEY ) ( car ( cdr ( car L1 ) ) ) );;;match
+     (  else ( key-store ( cdr L1 ) KEY ) ) ;;;search next tuple
+  )
+)
+
+(display "key-store Test 1\n")
+(key-store '((a 2) (b c) (c (3 4))) 'c)
+(key-store '((a 2) (b c) (c (3 4))) 'b)
+(key-store '((a 2) (b c) (c (3 4))) 'z)
+(key-store '((() a)) '())
+
+#|
+[5 Points] Write a function named (list-replace ALIST SYM
+VAL) that accepts a list of elements and returns that
+list where all SYM's (a single symbol) have been replaced
+by the VAL (some scheme value). The replacement must
+occur even within nested lists.
+|#
+( define ( list-replace ALIST SYM VAL ) 
+  ( cond
+     ( ( null? ALIST ) '() ) ;;;empty list
+     ( ( equal? SYM ( car ALIST ) ) ( cons VAL ( list-replace ( cdr ALIST ) SYM VAL ) ) );;;check and replace
+     ( ( symbol? ( car ALIST ) ) ( cons ( car ALIST ) ( list-replace ( cdr ALIST ) SYM VAL ) ) );;;keep val and run through independently
+     (  else ( cons ( list-replace ( car ALIST ) SYM VAL ) ( list-replace ( cdr ALIST ) SYM VAL ) ) );;;list within a list case
+  )
+)
+(display "list-replace Test 1\n")
+(list-replace '(a b c) 'a 3) ;;;---> (3 b c)
+(list-replace '(a (a b c) c) 'a 3) ;;;---> (3 (3 b c) c)
+(list-replace '() 'a 3) ;;;---> ()
+(list-replace '(a (a (a))) 'a '(3)) ;;;--> ((3) ((3) ((3))))
+
+
+#|
+[5 Points] Write a function named (first-n L1 N) that
+returns the first N elements of L1. If N is negative,
+return the empty list. If N exceeds the length of L1
+return all elements of L1.
+|#
+( define ( first-n L1 N )
+  ( cond
+    ( ( or ( < N 1 ) ( null? L1 ) ) '() ) ;;;list is empty or N < 1
+    (  else ( cons ( car L1 )( first-n ( cdr L1 ) ( - N 1 ) ) ) ) ;;;list is not empty and N > 0 
+  )
+)
+
+(display "first-n Test 1\n")
+(first-n '(a b c d e f) -3) ;;;---> ()
+(first-n '(a b c d e f) 3) ;;;---> (a b c)
+(first-n '(a b c d e f) 33) ;;;---> (a b c d e f)
+(first-n '() 0) ;;;---> ()
+
+#|
+[5 Points] Write a function named (forget-n L1 N) that
+returns the elements of L1 except for the first N. If
+N is negative, return all elements. If N exceeds the
+length of L1 return the empty list.
+|#
+( define ( forget-n L1 N )
+  ( cond
+    ( ( <= N 0 ) L1 ) ;;;N is negative
+    ( ( < N 1 )  ( cdr L1 ) ) ;;; N = 0 and list is not empty
+    ( ( null? L1 ) '() ) ;;; N exceeds length of L1
+    ( else ( forget-n ( cdr L1 ) ( - N 1 ) ) )
+  )
+)
+
+(display "forget-n Test 1\n")
+(forget-n '(a b c d e f) -3) ;;;---> (a b c d e f)
+(forget-n '(a b c d e f) 3) ;;;---> (d e f)
+(forget-n '(a b c d e f) 6) ;;;---> ()
+(forget-n '(a b c d e f) 0) ;;;---> (a b c d e f)
+(forget-n '(a b c d e f) 33) ;;;---> ()
+(forget-n '() 0) ;;;---> ()
+
+#|
+[10 Points] Write a function (running-sum L) that takes
+a list of numbers L and generates a list of the
+runnining sums.
+|#
+( define (running-sum L)
+  ( cond
+     ( ( null? L ) '() );;;empty list
+     ( ( null? ( cdr L ) )  ( cons
+                             ( car L )
+                             ( running-sum ( cdr L ) ) ) );;single value list
+     ( else ( cons
+              ( car L )
+              ( running-sum ( cons
+                              ( + ( car L ) ( car ( cdr L ) ) )
+                              ( cdr ( cdr L ) ) ) ) ) ) ;;;multivalue list
+  )
+)
+
+(display "running-sum Test 1\n")
+(running-sum  '()) ;;;---> ()
+(running-sum  '(1))
+(running-sum  '(1 2)) ;;;---> (1 3)
+(running-sum  '(1 2 3)) ;;;---> (1 3 6)
+(running-sum  '(3 0 -2 3)) ;;;---> (3 3 1 4)
+(running-sum  '(0 1 2 3 4 5 6 7 8 9 10)) ;;;---> (0 1 3 6 10 15 21 28 36 45 55)
+
+
+;;;Write a function (counts XS) that takes a list of items
+;;; XS and generates a counting of the elements in XS.
+;;; The returned object is a list of lists. Each element
+;;; of the returned object is a list of length two
+;;; containing an element X of XS and an integer denoting
+;;; the number of occurrences of X in XS. The order of the
+;;; elements in the computed list is not specified. [10 pts]
+
+
+#|counts the occurences of a given SYM in a list|#
+(define (count-sym L SYM)
+  (cond
+    ( ( null? L ) 0 )
+    ( ( equal? ( car L ) SYM ) ( + 1 ( count-sym ( cdr L ) SYM ) ) )
+    ( else ( count-sym ( cdr L ) SYM ) )
+  )
+)
+#|main procedure|#
+( define ( counts XS )
+  ( cond
+    ( ( null? XS ) '() )
+    ( else ( cons
+             ( list ( car XS ) ( count-sym XS ( car XS ) ) ) ;;; ( value count )
+             ( counts ( filter ( lambda ( x ) ( not ( equal? ( car XS ) x) ) ) XS ) ) ) ) ;;; count filtered list
+  ) 
+)
+
+(display "count-sym Test 1\n")
+(count-sym '(a d b b q b 0 1 c) 'b) ;;;--->3
+(count-sym '(b b b b) 'b) ;;;--->4
+(count-sym '() 'b) ;;;--->0
+
+(display "filter Test 1\n")
+( filter number? '(1 2 3 "hello" #t #\a ) )
+( filter (lambda (x) (not(equal? 'y x))) '(1 2 3 y 4 5) )
+
+(display "counts Test 1\n")
+(counts '(a b c c b b)) ;;;---> '((a 1) (b 3) (c 2))
+(counts '()) ;;;---> '()
+(counts '(1 3 c c #f)) ;;;---> '((1 1) (3 1) (c 2) (#f 1))
+(counts '(b b a b))
+(counts '(a b c d a 1 2 3 a))
+
+#|
+[5 Points] Write a function (indices L1 X) that takes a
+list of elements L1 and an element X. The function
+returns a list of the indices in L1 that contain X.
+See the following examples for clarificaton.
+|#
+( define ( indices L1 X )
+  ( map ( lambda ( x ) ( + 1 x ) ) ;;;increment values in L1 after each recur. call
+        ( cond
+          ( ( null? L1 ) '() ) ;;;empty list
+          ( ( equal? X ( car L1 ) ) ( cons -1
+                                           ( indices ( cdr L1 ) X ) ) ) ;;;match, add a -1 to list and check cdr list  
+          ( else ( indices ( cdr L1 ) X ) ) ;;;check next element
+         )
+  )
+)
+( display "indices Test 1\n" )
+(indices '(a a a a a a a a a a a a) 'a)
+(indices '(a b c a e f a) 'a) ;;;---> (0 3 6)
+(indices '(a (a b) b c d) 'a) ;;;---> (0)
+(indices '(a b c a e f a) 'z) ;;;---> ()
+(indices '(() (a b) a b ()) '()) ;;;---> (0 4)
+
+#|
+[5 Points] Write a function (join-together L1 L2) that
+takes a sorted list (ascending) of integers L1 and
+a sorted list of elements L2 and returns a sorted
+list containing all elements of both L1 and L2.
+See the following examples for clarificaton.
+|#
+( define ( join-together L1 L2 )
+  ( cond
+     ( ( and ( null? L1 ) ( null? L2 ) ) '() );;;no values in either list
+     ( ( null? L1 )  ( cons ( car L2 ) ( cdr L2 ) ) );;;L1 out of values
+     ( ( null? L2 )  ( cons ( car L1 ) ( cdr L1 ) ) );;;L2 out of values
+     ( ( < ( car L1 ) ( car L2 ) ) ( cons ( car L1 )
+                                          ( join-together ( cdr L1 ) L2 )
+                                   )
+     )
+
+     ( ( > ( car L1 ) ( car L2 ) ) ( cons ( car L2 )
+                                          ( join-together L1 ( cdr L2 ) )
+                                   )
+     )
+  )
+)
+(display "join-together Test 1\n")
+(join-together '(3 12 18) '(-12 15 22)) ;;;---> (-12 3 12 15 18 22)
+(join-together '() '(-12 15 22)) ;;;---> (-12 15 22)
+(join-together '(3 12 18) '()) ;;;---> (3 12 18)
+(join-together '(3 4 5) '(100 200 300 400 500 600)) ;;;---> (3 4 5 100 200 300 400 500 600)
+(join-together '(100) '(1 2 3 4 500 600)) ;;;---> (1 2 3 4 100 500 600)
+
+#|
+[10 Points] Write a function (merge-sorter L1) that
+takes list-of-integers L1 and returns all elements
+of L1 in sorted order. You must use a merge-sort
+technique that, in the recursive case, a) splits
+L1 into two approximately-equal-length lists, b)
+sorts those lists, and then c) merges the lists
+to obtain the result.
+|#
+
+#|splits the list using a procedure f|#
+( define ( split f L1)
+ ( f L1 ( round  ( / ( length L1 ) 2 ) ) )
+)
+( define ( merge-sorter L1 )
+  (cond
+    ( ( null? L1 ) '() )
+    ( ( < ( length L1 ) 2 ) L1 )
+    ( else ( join-together ( merge-sorter ( split first-n L1 ) ) ( merge-sorter ( split forget-n L1 ) ) ) )
+  )
+)
+( display "Test merge-sorter\n" )
+(merge-sorter '(-3 -20 100) )
+(merge-sorter '(100 -2))
+(merge-sorter '(-2))
+(merge-sorter '() )
+(merge-sorter '(3 1 5 4 2) ) ;;;---> (1 2 3 4 5)
+(merge-sorter '()) ;;;---> ()
+(merge-sorter '(1)) ;;;---> (1)
+
+;;;[10 Points] Consider two techniques for representing
+;;; a graph as Scheme lists. We can represent a
+;;; directed graph as a list of edges. We call this
+;;; representation an el-graph (i.e. edge-list graph).
+;;; An edge is itself a list of length two such that
+;;; the first element is a symbol denoting the source
+;;; of the edge and the second element is a symbol
+;;; denoting the target of the edge. Note that an
+;;; edge is a list (not just a pair). For example,
+;;; the following is a graph: '((x y) (y z) (x z)).
+;;; We can also represent a graph similar to an
+;;; adjacency matrix. We call this representation an
+;;; x-graph (i.e. matrix-graph). In this case, a graph
+;;; is a list of adjacencies where an adjacency is a
+;;; list of length two such that the first element is a
+;;; node (a symbol) and the second element is a list of
+;;; the targets of that node. For example, the
+;;; following is a graph: '((x (y z)) (y (z)) (z ())).
+;;; Write function (el-graph->x-graph g), that accepts an el-graph g and returns an x-graph of g.
+;;; Write function (x-graph->el-graph g), that accepts an x-graph g and returns an el-graph of g
+
+( define (decompose L1)
+   ( cond
+      ( ( null?  L1 ) '() )
+      ( else ( cons ( caar L1 ) ( cons ( cadar L1 ) ( decompose ( cdr L1 ) ) ) ) )
+   )
+)
+
+( define ( targets L1 g )
+   ( cond
+      ( ( null? L1 ) '() )
+      ( else ( cons ( list ( car L1 ) ( edges ( car L1 ) g ) )
+                     (targets ( filter ( lambda (x) ( not ( equal? ( car L1 ) x) ) ) L1 ) g) ) )
+   )
+)
+( define ( edges VERT g )
+   ( cond
+      ( ( null? g ) '() )
+      ( ( equal? ( caar g ) VERT ) ( cons ( cadar g ) ( edges VERT ( cdr g ) ) ) )
+      ( else ( edges VERT ( cdr g ) ) )
+   )
+)
+
+(define ( el-graph->x-graph g )
+  ( targets ( decompose g ) g )
+)
+( define ( x-graph->el-graph g )
+  ( cond
+     ( ( null? g ) '() )
+     ( else ( append ( map ( lambda ( target ) ( list ( caar g ) target ) ) ( cadar g ) ) ( x-graph->el-graph ( cdr g ) ) ) )
+   )
+)
+
+(display "el-graph->x-graph Test 1\n")
+(el-graph->x-graph '() )
+(el-graph->x-graph '( (x y) ) )
+(el-graph->x-graph '((x y) (y z)) )
+(el-graph->x-graph '((x y) (y z) (x z)) ) ;;;--->( (x(y)) (y()) (y(x)) (x()) (y(z)) (z()) (x(z)) (z()) )
+(el-graph->x-graph '((x y) (x x) (y z) (x z)) ) ;;;---> ((x (y z)) (y (z)) (z ())).
+(el-graph->x-graph '((x y) (y z) (x z)(u v) (v w) (u w)) ) ;;;---> ((x (y z)) (y (z)) (z ()) (u (v w)) (v (w)) (w ())).
+
+
+(display "x-graph->el-graph Test 1\n")
+(x-graph->el-graph '((x (y z)) (y (z)) (z ()))) ;;;---> ((x y) (y z) (x z)).
+(x-graph->el-graph '((x (x y z)) (y (z w)) (z ()) ( w () ) )) ;;;---> ((x y) (y z) (x z)).
